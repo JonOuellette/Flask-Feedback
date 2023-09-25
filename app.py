@@ -23,6 +23,9 @@ def homepage():
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register_user():
+
+    if "username" in session:
+        return redirect(f"/users/{session['username']}")
     
     form = RegisterForm()
 
@@ -41,18 +44,22 @@ def register_user():
 
         return redirect(f"/users/{new_user.username}")
     
-    else: return redirect("users/register.html", form=form)
+    else: return render_template("users/register.html", form=form)
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     """Generates login form to handle logins"""
 
+    if "username" in session:
+        return redirect(f"/users/{session['username']}")
+    
     form = LoginForm()
 
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
+
         user = User.authenticate(username, password)
 
         if user:
@@ -74,28 +81,29 @@ def logout():
     session.pop("username")
     return redirect("/login")
 
-@app.route("/user/<username>")
+@app.route("/users/<username>")
 def user_page(username):
     """logged in user page"""
     if 'username' not in session or username != session['username']:
         flash(f"Please login.")
 
     user = User.query.get(username)
+    form=FeedbackForm()
     
-    return render_template("users/show.html", user=user)
+    return render_template("users/show.html", user=user, form=form)
 
 
 @app.route("/users/<username>/delete", methods=["POST"])
 def delete_user(username):
     """Deletes user and redirects to register"""
-    user = User.query.get(username)
+    user = User.query.get_or_404(username)
     db.session.delete(user)
     db.session.commit()
-    session.pop(username)
+    session.pop("username")
 
-    return redirect("/register")
+    return redirect("/")
 
-@app.route("/users/<username>/feedback/add", methods = ["GET", "POST"])
+@app.route("/users/<username>/feedback/new", methods = ["GET", "POST"])
 def new_feedback(username):
     if 'username' not in session or username != session['username']:
         flash(f"Please login.")
@@ -116,7 +124,7 @@ def new_feedback(username):
     else:
         return render_template("feedback/new.html", form=form)
     
-@app.route("/feedback/<feedback_id>/update")
+@app.route("/feedback/<feedback_id>/update", methods=["GET", "POST"])
 def update_feedback(feedback_id):
     """Displays the update feedback form and submits the update"""
 
@@ -137,20 +145,24 @@ def update_feedback(feedback_id):
     
     return render_template("/feedback/edit.html", form=form, feedback=feedback)
 
-@app.route("/feedback/<feedback-id>/delete")
+@app.route("/feedback/<feedback_id>/delete", methods=["POST"])
 def delete_feedback(feedback_id):
     """Deletes feedback """
     feedback = Feedback.query.get_or_404(feedback_id)
+    print(f"Feedback username: {feedback.username}, Session username: {session['username']}")
 
+    print(session)
     if 'username' not in session or feedback.username != session['username']:
         flash(f"Please login.")
+        return redirect("/login")
 
     if feedback.username == session['username']:
         db.session.delete(feedback)
         db.session.commit()
         flash("Feedback Removed")
-        return redirect("/users/{feedback.username}")
+        return redirect(f"/users/{feedback.username}")
+    
     flash("You don't have permission to do that!")
-    return redirect("/users/{feedback.username}")
+    return redirect(f"/users/{session['username']}")
 
 
