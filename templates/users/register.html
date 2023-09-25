@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title % }  Create User  {% endblock %}
+{% block title %}  Create User  {% endblock %}
 
 {% block content %}
 
@@ -8,16 +8,16 @@
 <p class="lead">Complete the form to register.</p>
 
 <form action="" method = "POST">
-    {{form.hidden.tag()}}
+    {{form.hidden_tag()}}
 
     {% for field in form if field.widget.input_type != 'hidden' %}
         
          {{field.label(class="col-sm-2 col-form-label")}}
          {{field(class="form-control")}}
-        </div>
-    {{endfor}}
+        
+    {% endfor %}
 
-    {% for error in field.errors %}
+    {% for field in form.errors %}
     {{error}}
     {% endfor %}
 

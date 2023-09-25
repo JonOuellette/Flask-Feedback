@@ -19,16 +19,16 @@ connect_db(app)
 
 @app.route("/")
 def homepage():
-    return redirect("/users/register")
+    return redirect("/register")
 
-@app.route('/register', methods = ['GET', 'POST'])
+@app.route("/register", methods = ['GET', 'POST'])
 def register_user():
     
     form = RegisterForm()
 
     if form.validate_on_submit():
         username = form.username.data
-        password = form.username.data
+        password = form.password.data
         first_name = form.first_name.data
         last_name = form.last_name.data
         email = form.email.data
@@ -38,4 +38,13 @@ def register_user():
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect('/secret')
+        return redirect("/secret")
+    
+    else: return render_template("users/register.html", form=form)
+
+
+@app.route("/secret")
+def secret_page():
+    return render_template("secret.html")
+
+    
