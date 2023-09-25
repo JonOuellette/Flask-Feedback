@@ -62,7 +62,7 @@ def login():
             return redirect("/secret")
         
         else:
-            form.username.errors = ["invalid username/password."]
-            return redirect("/login")
+            form.username.errors = ["Invalid username/password."]
+            
     
     return render_template("users/login.html", form=form)

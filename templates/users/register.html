@@ -12,15 +12,20 @@
 
     {% for field in form if field.widget.input_type != 'hidden' %}
         
-         {{field.label(class="col-sm-2 col-form-label")}}
-         {{field(class="form-control")}}
-        
-    {% endfor %}
+    <div class="form-group row mb-2" >
+        {{field.label(class="col-sm-2 col-form-label")}}
+        <div class="col-sm-10">
+          {{field(class="form-control")}}
+        </div>
+      </div>
 
-    {% for field in form.errors %}
-    {{error}}
+        {% for error in field.errors %}
+        <span class="form-text text-danger">{{error}}</span>
+        {% endfor %}
+    
     {% endfor %}
 
     <button class = "btn btn-success" type="submit">Register</button>
+
 </form>
 {% endblock %}
